@@ -28,7 +28,10 @@ jobs:
         
     - name: Install dependencies
       if: steps.cache-npm.outputs.cache-hit != 'true'
-      run: npm ci
+      run: |
+        npm install express
+        npm install --save-dev jest supertest
+        npm ci
     
     - name: Run tests
       run: npm test  
@@ -52,4 +55,4 @@ jobs:
           build/
           !dist/**/*.md
           !build/**/*.md
-        retention-days: 5
+        retention-days: 1
