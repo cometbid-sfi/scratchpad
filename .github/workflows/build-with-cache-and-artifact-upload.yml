@@ -27,12 +27,10 @@ jobs:
         cache: 'npm'
         
     - name: Install dependencies
-      if: steps.cache-npm.outputs.cache-hit != 'true'
       run: |
-        npm init -y
         npm install express
         npm install --save-dev jest supertest
-        npm install
+        npm ci
     
     - name: Run tests
       run: npm test  
