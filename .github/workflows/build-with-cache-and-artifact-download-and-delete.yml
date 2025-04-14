@@ -71,3 +71,23 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -R
         working-directory: dist
+    
+      - name: Delete artifact
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const artifacts = await github.rest.actions.listArtifactsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            
+            for (const artifact of artifacts.data.artifacts) {
+              if (artifact.name === 'my-app') {
+                console.log('Deleting artifact:', artifact.name);
+                await github.rest.actions.deleteArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: artifact.id,
+                });
+              }
+            }
