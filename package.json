@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "webpack",
     "start": "node index.js",
     "test": "jest"
   },
@@ -19,5 +20,11 @@
   "homepage": "https://github.com/cometbid-sfi/scratchpad#readme",
   "dependencies": {
     "express": "5.1.0"
+  },
+  "devDependencies": {
+    "jest": "29.7.0",
+    "supertest": "7.1.0",
+    "webpack": "5.99.5",
+    "webpack-cli": "6.0.1"
   }
 }
