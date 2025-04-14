@@ -1,8 +1,10 @@
-name: Node.js CI - with cache and artefact upload
+name: Node.js CI - with cache and artifact upload and download
 
 on:
   workflow_dispatch:
   push:
+
+run-name: Cache, artifact and download test by ${{ github.actor }}
 
 jobs:
   build:
@@ -52,4 +54,18 @@ jobs:
           build/
           !dist/**/*.md
           !build/**/*.md
-        retention-days: 5
+        retention-days: 1
+    
+  deploy-job:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: my-app
+          path: dist
+
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory: dist
