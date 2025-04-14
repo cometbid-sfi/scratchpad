@@ -10,7 +10,7 @@ jobs:
     steps:
     - name: checkout code
       uses: actions/checkout@v4
-    - name: Use Node.js 14.x
+    - name: Use Node.js 22.x
       uses: actions/setup-node@v4
       with:
         node-version: 22.x
