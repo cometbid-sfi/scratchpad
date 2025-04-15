@@ -1,7 +1,9 @@
 name: Dev Deployment
 
 on:
-  pull_request:
+  push:
+    branches:
+      - ci/feature  
 
 jobs:  
   dev-job:
