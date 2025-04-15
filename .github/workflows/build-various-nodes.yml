@@ -1,0 +1,116 @@
+name: Node.js CI - different engines
+
+on:
+  workflow_run:
+    workflows: ["Node.js CI - with cache and artifact upload and download"]
+    types:
+      - completed
+  #push:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [14, 16, 18, 20, 22]
+    
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Set artifact name
+      id: artifact
+      run: |
+        echo "NAME=my-app-${{ github.sha }}" >> $GITHUB_OUTPUT
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Restore Cache
+      id: cache-npm
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-${{ matrix.node }}
+
+    - name: Use Node.js ${{ matrix.node }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: |
+        npm install express
+        npm install --save-dev jest supertest
+        npm ci
+
+    - name: Run tests
+      run: npm test  
+
+    - name: Build
+      run: npm run build --if-present
+
+    - name: Save npm cache
+      if: steps.cache-npm.outputs.cache-hit != 'true'
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/package-lock.json') }}
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ steps.artifact.outputs.NAME }}
+        path: |
+          dist/
+          build/
+          !dist/**/*.md
+          !build/**/*.md
+        retention-days: 1
+  
+  deploy-job:
+    needs: build
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [14, 16, 18, 20, 22]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Set artifact name
+        id: artifact
+        run: |
+          echo "NAME=my-app-${{ github.sha }}" >> $GITHUB_OUTPUT
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: my-app-${{ matrix.os }}-${{ matrix.node }}
+          path: downloaded-content
+
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory: downloaded-content
+      
+      - name: Delete artifact
+        if: ${{ steps.artifact.outputs.NAME == format('my-app-{0}', github.sha) }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const artifactName = '${{ steps.artifact.outputs.NAME }}';
+            const artifacts = await github.rest.actions.listArtifactsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            
+            for (const artifact of artifacts.data.artifacts) {
+              if (artifact.name === artifactName) {
+                console.log('Deleting artifact:', artifact.name);
+                await github.rest.actions.deleteArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: artifact.id,
+                });
+              }
+            }
