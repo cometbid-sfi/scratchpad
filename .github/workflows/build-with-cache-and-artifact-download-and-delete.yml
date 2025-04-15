@@ -3,8 +3,9 @@ name: Node.js CI - with cache and artifact download and delete
 on:
   workflow_run:
     workflows: ["Node.js CI - with cache and artifact upload and download"]
-  push:
-
+    types:
+      - completed
+      
 run-name: Cache, artifact and download test by ${{ github.actor }}
 
 jobs:
