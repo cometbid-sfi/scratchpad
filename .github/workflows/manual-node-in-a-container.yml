@@ -1,0 +1,25 @@
+name: Node Version in a container
+
+on:
+  workflow_dispatch:
+
+jobs:
+  node_job:
+    runs-on: ubuntu-latest
+
+    container:
+      image: node:18
+      env:
+        NODE_ENV: production
+      #ports:
+        #- 9090
+      #options: --cpus 1
+      #volumes:
+        #- /path/in/runner:/path/in/container
+      #credentials:
+        #username: ${{ secrets.REGISTRY_USERNAME }}
+        #password: ${{ secrets.REGISTRY_PASSWORD }}
+
+    steps:
+      - name: Run a command
+        run: node --version
