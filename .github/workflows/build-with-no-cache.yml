@@ -10,11 +10,13 @@ jobs:
     steps:
     - name: checkout code
       uses: actions/checkout@v4
+
     - name: Use Node.js 22.x
       uses: actions/setup-node@v4
       with:
         node-version: 22.x
         cache: 'npm'
+        
     - name: run build
       run: npm ci
     - run: npm run build --if-present
