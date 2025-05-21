@@ -8,3 +8,4 @@ jobs:
   ci: 
     name: run build process
     uses: cometbid-sfi/GHA.workflows/.github/workflows/gha.workflows.build-node-composite.yml@main
+
