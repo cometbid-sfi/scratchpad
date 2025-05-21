@@ -1,4 +1,4 @@
-name: Node.js CI - with cache
+name: Node.js CI - with slack notification
 
 on:
   workflow_dispatch:
